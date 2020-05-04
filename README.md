@@ -50,15 +50,18 @@ Der Service ist eine Definition für ein Client-Server-System. Er definiert eine
 **Kommunikation Controller - Predictor:**  Der Datentransfer wird hier mittels eines Services realisiert. Der `/controller` sendet das Bild synchron zum `/predictor`. Dieser analysiert das Bild und fällt auf Grundlage des Neuronalen Netzes seine Entscheidung. Er veruscht also die Zahl vorherzusagen, die er meint, die auf dem Bild dargestellt ist. Das Ergebnis wird zum `/controller` zurück gesendet. Anschließend werden die beiden Werte - reale Zahl von der `/camera` und die vorhergesagte Zahl vom `/predictor` verglichen, sodass eine Evaluation des Neuronalen Netzen ermöglicht wird. 
 
 # 3. AI-Modell - Neural Network
+
+Als Framework für das Neuronale Netywerk verwenden wir **PyTorch**.
+
 ### 3.1 Architektur - Dense Layer Neural Network
 
-Das Modell besteht aus 6 Layern. In dem ersten Layern - dem sogenannten **Input-Layer** - verarbeiten 784 Neuronen jeweils das einzelne Bild. Dabei wird das 28x28 MNIST-Bild in einen Vektor transponiert, sodass er die Dimension 784x1 erreicht. Das ermöglicht mittels einer Matrixmultiplikation eine sehr performante Klassifikation.
+Das Modell besteht aus 4 Layern, plus zwei Aktivierungschichten. Im ersten Layer - dem sogenannten **Input-Layer** - verarbeiten 784 Neuronen jeweils das einzelne Bild. Dabei wird das 28x28x1 (Greyscale) MNIST-Bild in einen langen Vektor transponiert, sodass er die Dimension 784x1 erreicht. Das ermöglicht mittels einer Matrixmultiplikation eine sehr performante Klassifikation (auch von mehreren Bildern im Batch).
 
-Es handelt sich hierbei um ein Fully-Connected Neuronales Netzwerk. Das bedeutet, dass jedes Neuron der n-ten Schicht mit jedem Neuron in der n+1-ten Schicht verbunden ist. Es ist also "vollkommen vernetzt". Jeder dieser Stränge stellt ein Gewicht dar. Die einzelnen Werte werden also mit einem Gewicht multipliziert und anschließen mit einem Bias addiert. Das ist dafür nötig, dass Neuronale Netzwerke überhaupt lernen können. Denn das Lernen eines Netzwerkes stellt im Grunde nichts anderes dar, als die präzise Anpassung jener Gewichte.
+Es handelt sich hierbei um ein Fully-Connected Neuronales Netzwerk. Das bedeutet, dass jedes Neuron der n-ten Schicht mit jedem Neuron in der n+1-ten Schicht verbunden ist. Es ist also "vollkommen vernetzt". Jeder dieser Stränge (Kanten im Graph) stellt ein Gewicht dar. Die einzelnen Ausgabewerte eines jeden Neurons werden also mit einem spezifischen Gewicht multipliziert und anschließen mit einem Bias addiert. Die Manipulation dieser Gewichte ist der eigentliche Lernprozess des Neuronalen Netzwerks.
 
-Zwischen diesen Fully-Connected-Layern liegen **Aktivierungslayer**. Sie sorgen dafür, dass das Signal in einen definierten Wertebereich abgebildet wird. Die Aktivierungsfunktion bestimmt, wie der Aktivierungszustand eines Neurons von der Eingabe aller anderen Neuronen, die mit diesem Neuronen verbunden sind, abhängt. In dieser Architektur wurde sich für die am verbreiteste Aktivierungsfunktion entschieden: ReLU (Rectified Linear Unit) `f(x) = max(0,x)`. Hier wird der Wertebereich also nach [0, ∞) verschoben, also faktisch gesagt, alle positiven Werte werden "durchgelassen" und die negativen auf 0 gesetzt.
+**Aktivierungslayer:** Zwischen diesen Fully-Connected-Layern liegen Aktivierungslayer. Sie sorgen dafür, dass das Ausgabesignal eines Neurons nach der Berechnung in einen definierten Wertebereich abgebildet wird. In dieser Architektur wurde sich für die am verbreiteste Aktivierungsfunktion entschieden: ReLU (Rectified Linear Unit) `f(x) = max(0,x)`. Hier wird der Wertebereich also nach [0, ∞) verschoben, also faktisch gesagt, alle positiven Werte werden "durchgelassen" und die negativen auf 0 gesetzt.
 
-In der letzten Schicht - dem sogenannten **Output-Layer** - finden Sich nur noch 10 Neuronen, die potenziellen Klassen widerspiegeln (0, ..., 9). Hier wird dann als Aktivierungsfunktion die Softmax-Funktion genutzt. Sie bildet den Wertebereich auf [0,1] ab und hat desweiteren die Eigenschaft, dass die Summe aller Werte wiederum 1 ergeben. Das erinnert doch stark an die Stochastik, sodass wir diese Werte als einfache Wahrscheinlichkeiten betrachten können. Der höchste Wert ist also ausschlaggebend - da es laut dem Modell am wahrscheinlichsten ist -, sodass sich für diese dann entschieden wird.
+ **Output-Layer:** In der letzten Schicht - dem sogenannten Output-Layer - finden Sich nur noch 10 Neuronen, die potenziellen Klassen widerspiegeln (0, ..., 9). Hier wird dann als Aktivierungsfunktion die Softmax-Funktion genutzt. Sie bildet den Wertebereich auf [0,1] ab und hat desweiteren die Eigenschaft, dass die Summe aller Werte wiederum 1 ergeben. Das erinnert doch stark an die Stochastik, sodass wir diese Werte als einfache Wahrscheinlichkeiten betrachten können. Der höchste Wert ist also ausschlaggebend - da es laut dem Modell am wahrscheinlichsten ist -, sodass sich für diese dann entschieden wird.
 
 Im Folgenden ist einmal die Architektur mit der Anzahl der Neuronen in den einzelnen Schichten und den jeweiligen Aktivierungsfunktionen in jeder Schicht zu sehen:
 
@@ -66,11 +69,11 @@ Im Folgenden ist einmal die Architektur mit der Anzahl der Neuronen in den einze
 
 ### 3.2 Kostenfunktion
 
-**Ausgabeschicht:** Als Ausgabeschicht verwenden wir die logarithmische Softmax-Funktion. In der Warscheinlichkeitstheorie kann die Ausgabe der Softmax-Funktion genutzt werden, um eine kategoriale Verteilung – also eine Wahrscheinlichkeitsverteilung über K unterschiedliche mögliche Ereignisse – darzustellen. Es gibt eine Reihe von Gründen, die logarithmische Version dieser Funktion zu benutzen, darunter: eine bessere numerische Performanz und Gradientenoptimierung. Diese Vorteile können sehr wichtig werden, wenn das Training eines Modells sehr anspruchsvoll und rechenintensiv wird. Im Wesentlichen hat der Gebrauch von logarithmischen Wahrscheinlichkeiten anstatt von einfachen Warscheinlichkeiten gute informationstheoretische Implikationen für Klassifikationsprobleme. Das Modell wird in diesem Fall stärker bestraft, wenn es nicht die korrekte Klasse voraus sagt.
+**Ausgabeschicht:** Als Ausgabeschicht verwenden wir die logarithmische Softmax-Funktion (siehe oben). In der Warscheinlichkeitstheorie kann die Ausgabe der Softmax-Funktion genutzt werden, um eine kategoriale Verteilung – also eine Wahrscheinlichkeitsverteilung über K unterschiedliche mögliche Ereignisse – darzustellen. Es gibt eine Reihe von Gründen, die logarithmische Version dieser Funktion zu benutzen, darunter: eine bessere numerische Performanz und Gradientenoptimierung. Diese Vorteile können sehr wichtig werden, wenn das Training eines Modells sehr anspruchsvoll und rechenintensiv wird. Im Wesentlichen hat der Gebrauch von logarithmischen Wahrscheinlichkeiten anstatt von einfachen Warscheinlichkeiten gute informationstheoretische Implikationen für Klassifikationsprobleme. Das Modell wird in diesem Fall stärker bestraft, wenn es nicht die korrekte Klasse voraus sagt.
 
 ![log_softmax](./Docs/LogSoftmax.png)<br>
 
-**Loss-Funktion:** Passend zur logarithmischen Softmax-Funktion nutzen wir die Cross-Entropy als Kostenfunktion. Diese passt besser zu als zum Beispiel der "Mean Squared Error (MSE)", das sie eine deutlich günstigere Hyperebene für den Gradientenabstieg erzeugt. Die Steigungen fallen hier kontinuierlicher zum Minimum ab.
+**Loss-Funktion:** Passend zur logarithmischen Softmax-Funktion nutzen wir die Cross-Entropy als Kostenfunktion. Diese passt besser zu als zum Beispiel der Mean Squared Error (MSE), das sie eine deutlich günstigere Hyperebene für den Gradientenabstieg erzeugt. Die Steigungen fallen hier kontinuierlicher zum Minimum ab.
 
 ![cross_entropy](./Docs/CrossEntropy.png)<br>
 
@@ -78,15 +81,25 @@ Im Folgenden ist einmal die Architektur mit der Anzahl der Neuronen in den einze
 
 ### 3.3 Optimizer
 
+Um den Gradientenabstieg durchzuführen benötigen wir einen Optimizer. Dieser legt im Grunde genommen fest, wie ein Abstiegsschritt im Verhältnis auf die lokale Steigung der Kostenlandschaft (Hyperebene) auszuführen ist. Wir verwenden den **Stochastischen Gradient Decent**, der den Abstiegsschritt nach jeden Lernsample ansetzt. Ein einfacher Gradient Decent müsste zunächt alle Lerndaten sehen, bevor eine Update der Gewichte erfolgen kann. Diese Reduktion der Durchgänge erzeugt einen "wackeligeren", ungenauen Abstiegspfad, der sich aber im Mittel ausgleicht. Der Gewinn ist eine schnellere Berechnung. Bei PyTorch ist der SGD zudem mit Momentum versehen. D.h. wir speichern information über die vorherigen Abstiege in Form einer Geschwindigkeit. Bildlich veranschaulichen lässt sich das gespeicherte Momentum als Schwung einer Kugel, die den Hang hinabrollt. Der Abstieg wird dabei robuster und verfängt sich nicht so schnell in lokalen Minima. Die Berechnung des Abstiegsschrittes mit Momentum begünstigt auch ein Glattziehen der Abweichungen durch den stochastischen Ansatz.
+
+![sgd_momentum](./Docs/SGDMomentum.jpg)<br>
+
 
 
 ### 3.4 Auswertung Training
 
+**Training:** Das Modell wurde über 15 Epochen trainiert. Die Kosten fielen dabei zügig und stetig von 0.64 zu 0.052 ab. Nach 13 Epochen verändern sich die Kosten nunmehr im Bereich der dritten Nachkommastelle. Ein weiteres Training scheint hier nicht unbedingt sinvoll, da einer deutlichere Anpassung and den Trainingsdatensatz auch die Gefahr von Overfitting birgt. In diesem Fall würde sich zwar die Genauigkeit der Aussage über dem Trainingsdatensatz verbessern, ungesehene Daten würden aber schlechter eingeordnet (Generalisierungsfehler). Für das Training stellt MNIST 60 000 Samples zur Verfügung.
 
+Dieser Graph zeigt den Verlauf der Kosten über 15 Epochen Training.
 
+![loss_curve](./Docs/LossCurve.png)<br>
 
+**Validierung:** Getestet wurde das Modell mit 1000 ungesehenen Samples. Die **Accuracy liegt bei: 0.9721** also in etwa 97%. Das ist ein gutes Ergebnis, welches sich in der Anwendung innerhalb des ROS-Systems bestätigt. Von den im Projekt als Sensordaten eingelesenen Bildern wurde keines falsch klassifiziert.
 
 # 4. Deployment 
+
+### Docker Umgebung
 
 Wir können das Projekt in einem Docker-Container ausführen, der ein Ubuntu Linux und die passende ROS Melodic Installation enthält. Dazu ist folgenden Image zu beziehen:
 
@@ -111,7 +124,9 @@ $ docker run -it --name neurorace \
     bash
 ```
 
-Vor der Ausführung muss das Projekt gebait werden.
+### Projekt Bauen
+
+Vor der Ausführung muss das Projekt gebaut werden.
 
 ```bash
 # Goto catkin workspace.
@@ -143,10 +158,13 @@ $ roslaunch number_sensor sensor.launch
 Für Anzeige des Graphen kann RQT als GUI verwendet werden. Dieses ist eventuell nachzuinstallieren.
 
 ```bash
+# Add the ROS repository to apt.
 $ sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
 $ sudo apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
 $ sudo apt update
+# Install ros RQT and common plugins.
 $ sudo apt-get install ros-melodic-rqt
+$ sudo apt-get install ros-melodic-rqt-common-plugins
 ```
 
 Starte RQT und nutze die GUI, um das System zu analysieren.
