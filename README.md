@@ -1,9 +1,10 @@
-[rqt_graph]: https://github.com/Syntex2k/ros/blob/master/docs/rqt_graph.png "Kommunikation zwischen Publisher und Subscriber"
+[rqt_graph]: https://github.com/rendermat/NeuroRacer/blob/master/Docs/Graph_Task_1_3.png "Kommunikation zwischen Publisher und Subscriber"
 
 
 # Robot Operating System
 
-**Name:** Fabian Georgi <br>
+**Namen:** Fabian Georgi (s0563263) <br>
+Matthias Titze (s0563263)
 **Matrikelnummer:** s0563263 <br>
 **Dozent:** Patrick Baumann <br>
 **Kurs:** KI in der Robotik <br>
