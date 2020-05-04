@@ -1,0 +1,10 @@
+(cl:defpackage number_sensor-srv
+  (:use )
+  (:export
+   "NUMBERPREDICTOR"
+   "<NUMBERPREDICTOR-REQUEST>"
+   "NUMBERPREDICTOR-REQUEST"
+   "<NUMBERPREDICTOR-RESPONSE>"
+   "NUMBERPREDICTOR-RESPONSE"
+  ))
+
