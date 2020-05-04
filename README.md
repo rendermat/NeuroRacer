@@ -58,7 +58,11 @@ klklk
 
 ### 3.2 Kostenfunktion
 
+
+
 ### 3.3 Optimizer
+
+
 
 ### 3.4 Auswertung Training
 
@@ -67,6 +71,76 @@ klklk
 
 
 # 4. Deployment 
+
+Wir können das Projekt in einem Docker-Container ausführen, der ein Ubuntu Linux und die passende ROS Melodic Installation enthält. Dazu ist folgenden Image zu beziehen:
+
+```bash
+# Pull the base image.
+$ docker pull neurorace/simulation-base
+```
+
+Der Docker-Container muss aus dem Image gebaut werden:
+
+- Er erhält den Namen `neurorace`.
+- Wir linken das Volumen mit den Quellcode des Projekts ein - der Pfad ist anzupassen.
+- Wir setyen die `DISPLAY`-Variable, um X-Server Gui-Projektion of den Host zu erlauben.
+- Schließlich startet der Conatiner in `bash`, damit er nicht gleich wieder runter fährt.
+
+```bash
+# Create a container from the image and set it to run bash.
+$ docker run -it --name neurorace \
+    -v <path>/NeuroRacer/Container:/home \
+    -e DISPLAY=192.168.2.107:0 \
+    neurorace/simulation-base \
+    bash
+```
+
+Vor der Ausführung muss das Projekt gebait werden.
+
+```bash
+# Goto catkin workspace.
+$ cd ../home/catkin_ws/
+```
+
+```bash
+# Build the projekt with catkin.
+$ catkin_make
+```
+
+```bash
+# Source the required setup bash scripts.
+$ source /opt/ros/melodic/setup.bash && source /home/catkin_ws/devel/setup.bash
+```
+
+Nun können wir das Projekt mit `roslaunch` ausführen.
+
+```bash
+# Start the core service.
+$ roscore
+```
+
+```bash
+# Use roslaunch to start all the nodes.
+$ roslaunch number_sensor sensor.launch
+```
+
+Für Anzeige des Graphen kann RQT als GUI verwendet werden. Dieses ist eventuell nachzuinstallieren.
+
+```bash
+$ sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+$ sudo apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+$ sudo apt update
+$ sudo apt-get install ros-melodic-rqt
+```
+
+Starte RQT und nutze die GUI, um das System zu analysieren.
+
+```bash
+# Start rqt
+$ rqt
+```
+
+
 
 
 
