@@ -58,7 +58,15 @@ klklk
 
 ### 3.2 Kostenfunktion
 
+**Ausgabeschicht:** Als Ausgabeschicht verwenden wir die logarithmische Softmax-Funktion. In der Warscheinlichkeitstheorie kann die Ausgabe der Softmax-Funktion genutzt werden, um eine kategoriale Verteilung – also eine Wahrscheinlichkeitsverteilung über K unterschiedliche mögliche Ereignisse – darzustellen. Es gibt eine Reihe von Gründen, die logarithmische Version dieser Funktion zu benutzen, darunter: eine bessere numerische Performanz und Gradientenoptimierung. Diese Vorteile können sehr wichtig werden, wenn das Training eines Modells sehr anspruchsvoll und rechenintensiv wird. Im Wesentlichen hat der Gebrauch von logarithmischen Wahrscheinlichkeiten anstatt von einfachen Warscheinlichkeiten gute informationstheoretische Implikationen für Klassifikationsprobleme. Das Modell wird in diesem Fall stärker bestraft, wenn es nicht die korrekte Klasse voraus sagt.
 
+![log_softmax](./Docs/LogSoftmax.png)<br>
+
+**Loss-Funktion:** Passend zur logarithmischen Softmax-Funktion nutzen wir die Cross-Entropy als Kostenfunktion. Diese passt besser zu als zum Beispiel der "Mean Squared Error (MSE)", das sie eine deutlich günstigere Hyperebene für den Gradientenabstieg erzeugt. Die Steigungen fallen hier kontinuierlicher zum Minimum ab.
+
+![cross_entropy](./Docs/CrossEntropy.png)<br>
+
+**Anmerkung:** Eigentlich haben wir die negtive Likelyhood-Function (NLL) verwendet. Diese wirkt in Zusammenhang mit den logarithmischen Ausgaben der letzten Schicht aber als Cross-Entropy.
 
 ### 3.3 Optimizer
 
