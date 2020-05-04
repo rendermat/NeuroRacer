@@ -47,14 +47,22 @@ Der Service ist eine Definition für ein Client-Server-System. Er definiert eine
 
 **Kommunikation Pre-Prozessor - Controller:**  Diese Kommunikation erfolgt ebenfalls über eine Topic: `/processed_images`. Der Controller ist außerdem Abonnent des Topics `/image_numbers`.
 
-**Kommunikation Controller - Predictor:**  Dkjkjkjk
-
-
+**Kommunikation Controller - Predictor:**  Der Datentransfer wird hier mittels eines Services realisiert. Der `/controller` sendet das Bild synchron zum `/predictor`. Dieser analysiert das Bild und fällt auf Grundlage des Neuronalen Netzes seine Entscheidung. Er veruscht also die Zahl vorherzusagen, die er meint, die auf dem Bild dargestellt ist. Das Ergebnis wird zum `/controller` zurück gesendet. Anschließend werden die beiden Werte - reale Zahl von der `/camera` und die vorhergesagte Zahl vom `/predictor` verglichen, sodass eine Evaluation des Neuronalen Netzen ermöglicht wird. 
 
 # 3. AI-Modell - Neural Network
 ### 3.1 Architektur - Dense Layer Neural Network
 
-klklk
+Das Modell besteht aus 6 Layern. In dem ersten Layern - dem sogenannten Input Layer - verarbeiten 784 Neuronen jeweils das einzelne Bild. Dabei wird das 28x28 MNIST-Bild in einen Vektor transponiert, sodass er die Dimension 784x1 erreicht. Das ermöglicht mittels einer Matrixmultiplikation eine sehr performante Klassifikation.
+
+Es handelt sich hierbei um ein Fully-Connected Neuronales Netzwerk. Das bedeutet, dass jedes Neuron der n-ten Schicht mit jedem Neuron in der n+1-ten Schicht verbunden ist. Es ist also "vollkommen vernetzt".
+
+Zwischen diesen Fully-Connected-Layern liegen Aktivierungslayer. Sie sorgen dafür, dass das Signal in einen definierten Wertebereich abgebildet wird. Die Aktivierungsfunktion bestimmt, wie der Aktivierungszustand eines Neurons von der Eingabe aller anderen Neuronen, die mit diesem Neuronen verbunden sind, abhängt. In dieser Architektur wurde sich für die am verbreiteste Aktivierungsfunktion entschieden: ReLU (Rectified Linear Unit) `f(x) = max(0,x)`. Hier wird der Wertebereich also nach [0, ∞) verschoben, also faktisch gesagt, alle positiven Werte werden "durchgelassen" und die negativen auf 0 gesetzt.
+
+In der letzten Schicht - dem sogenannten Output-Layer - finden Sich nur noch 10 Neuronen, die potenziellen Klassen widerspiegeln (0, ..., 9). Hier wird dann als Aktivierungsfunktion die Softmax-Funktion genutzt. Sie bildet den Wertebereich auf [0,1] ab und hat desweiteren die Eigenschaft, dass die Summe aller Werte wiederum 1 ergeben. Das erinnert doch stark an die Stochastik, sodass wir diese Werte als einfache Wahrscheinlichkeiten betrachten können. Der höchste Wert ist also ausschlaggebend - da es laut dem Modell am wahrscheinlichsten ist -, sodass sich für diese dann entschieden wird.
+
+Im Folgenden ist einmal die Architektur mit der Anzahl der Neuronen in den einzelnen Schichten und den jeweiligen Aktivierungsfunktionen in jeder Schicht zu sehen:
+
+ ![img](https://miro.medium.com/max/1574/1*HWhBextdDSkxYvz0kEMTVg.png)
 
 ### 3.2 Kostenfunktion
 
