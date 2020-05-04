@@ -1,6 +1,6 @@
 # Robot Operating System
 
-**Namen:** Fabian Georgi (s0563263), <br> 			 Matthias Titze (s0563413) <br>
+**Namen:** Fabian Georgi (s0563263), Matthias Titze (s0563413) <br>
 **Dozent:** Patrick Baumann <br>
 **Kurs:** 	KI in der Robotik <br>
 
