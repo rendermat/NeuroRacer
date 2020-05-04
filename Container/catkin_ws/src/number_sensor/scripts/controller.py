@@ -40,7 +40,10 @@ def callback(image_message, number_message):
     
     # Use the client to request a number prediction from the ai server. 
     predicted_number = predictor_client(processed_image)
-    rospy.loginfo('Pred: {0}'.format(predicted_number))
+    
+    # Check if prediction was real number.
+    match = predicted_number ==  input_list.pop(0)[0]
+    rospy.loginfo('Match: {0}'.format(match))
     
 def controller():
     # Define the processor node.

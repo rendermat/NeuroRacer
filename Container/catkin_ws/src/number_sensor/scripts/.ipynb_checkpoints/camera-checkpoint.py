@@ -17,7 +17,7 @@ bridge = CvBridge()
 def camera():
     # Define topics to publish to.
     pub_image = rospy.Publisher('raw_images', Image, queue_size=10)
-    pub_number = rospy.Publisher('image_numbers', IntWithHeader, queue_size=1)
+    pub_number = rospy.Publisher('image_numbers', IntWithHeader, queue_size=10)
     # Define the camera input node.
     rospy.init_node('cam', anonymous=True)
     rate = rospy.Rate(10) # 10hz

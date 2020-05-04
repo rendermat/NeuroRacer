@@ -16,9 +16,10 @@ def callback(image_message):
     rospy.loginfo('Raw: {0}'.format(np.shape(raw_image)))
     
     # Crop the image (as an example manipulation). 
-    margin = 1
-    processed_image = raw_image[margin:-margin, margin:-margin]
-    rospy.loginfo('Crop: {0}'.format(np.shape(processed_image)))
+    margin = 0
+    #processed_image = raw_image[margin:-margin, margin:-margin]
+    processed_image = cv2.cvtColor(raw_image, cv2.COLOR_BGR2GRAY)
+    rospy.loginfo('Grey: {0}'.format(np.shape(processed_image)))
     
     # Convert the processed image to a ROS sensor image message. 
     image_message = bridge.cv2_to_imgmsg(processed_image, encoding="passthrough")
