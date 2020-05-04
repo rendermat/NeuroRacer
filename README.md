@@ -26,12 +26,16 @@
 Bevor die Implementierung beginnt, sollten zunächst einige Grundlagen geklärt werden.
 ### 1.1 Nodes
 Eine Node ist in ROS ein gekapselter Prozess der Berechnungen ausführt. Sie kann durch eine ausführbare Datei innerhalb eines Paketes erzeugt werden. Nodes werden zu einem Graphen verknüpft und kommunizieren miteinander über ***Topics*** (Streams), ***RPC Dienste*** und den ***Parameter Server***. Jeder dieser Knoten stellt im Grunde eine Form von Microservice dar, der eine sehr eng umfasste Aufgabe erfüllt. Somit benötigt eine Robotersteuerung in der Regel viele Nodes.<br>Die Verwendung von Nodes hat einige Vorteile: Das System ist modular und kann im Verglich zu monolitischen Architekturen leicht erweitert werden. Auch erreichen wir eine gesteigerte Fehlertoleranz, da sich Abstürze auf einzelne Komponenten beschränken. Die Wiederverwendung und Nutzung von existierenden Bausteinen wird begünstigt, da klare Schnittstellen entstehen. Implementierungsdetails sind hingegen oft verborgen.
+
 ### 1.2 Messages
 Eine Message ist ein Datentyp mit denen Knoten untereinander Informationen austauschen können. Sie stellen eine Art Standard zur Kommunikation dar, sodass Sender und Empfänger über das selbe Dateiformat sprechen.
+
 ### 1.3 Topics
 Ein Topic bildet in etwa den Mittelsmann beim Informationsaustausch. Der Sender kann Nachrichten auf dem Topic "ablegen". Der Empfänger hat nun die Möglichkeit sich, wenn er das Topic abonniert hat, die Nachricht abzuholen. So findet die Kommunikation zwischen den zwei Nodes über ein bezeichneten Stream statt. Im Grunde genommen entspricht diese Architektur dem Publisher-Subscriber-Prinzip bei Internetservices.
+
 ### 1.4 Master
 Der Master `roscore` ist die Registry in einem ROS-System. Er überwacht die anderen Nodes und Ihre dazugehörigen Topics. Er sorgt somit dafür, dass sich die Nodes untereinander finden können, wenn diese Informationen austauschen wollen. Des Weiteren stellt er den Parameterserver zur Verfügung, sodass dort Daten - ähnlich wie Environment-Variablen - verwaltet werden können.
+
 ### 1.5 Service
 Der Service ist eine Definition für ein Client-Server-System. Er definiert einen Austauschkanal bei dem der Client einen Request an den Server sendet und von diesem eine Antwort erhält. Folglich sind an dem System mindestens zwei Nodes, wo bei eine der Client und der andere Server ist. Es könnten aber auch mehrere Clients den Server bedienen. Im Vergleich zum Topic ist anzumerken, dass das Absenden eines Request den Client zeitweilig blockiert bis die Antwort der Servers ankommt (synchrone Kommunikation). 
 
