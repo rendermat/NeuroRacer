@@ -32,8 +32,8 @@ def callback(image_message, number_message):
     # Extract the image number from the message.
     image_number = number_message.data
     # Log the information for debug purposes.
-    rospy.loginfo('Num: {0}'.format(number_message.data))
-    rospy.loginfo('Proc: {0}'.format(np.shape(processed_image)))
+    # rospy.loginfo('Num: {0}'.format(number_message.data))
+    # rospy.loginfo('Proc: {0}'.format(np.shape(processed_image)))
     
     # Store the input data to the dictionary. 
     input_list.append((image_number, processed_image))
@@ -42,7 +42,13 @@ def callback(image_message, number_message):
     predicted_number = predictor_client(processed_image)
     
     # Check if prediction was real number.
-    match = predicted_number ==  input_list.pop(0)[0]
+    real_number = input_list.pop(0)[0]
+
+    # Logging
+    rospy.loginfo('Real Number: {0}'.format(real_number))
+    rospy.loginfo('Predicted Number: {0}'.format(predicted_number))
+
+    match = predicted_number == real_number
     rospy.loginfo('Match: {0}'.format(match))
     
 def controller():

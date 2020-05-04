@@ -1,0 +1,7 @@
+.ipynb_checkpoints
+DS_STORE
+Images/.ipynb_checkpoints
+Docs/.ipynb_checkpoints
+.idea
+Container/catkin_ws/devel
+Container/catkin_ws/build
