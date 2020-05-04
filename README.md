@@ -4,8 +4,7 @@
 # Robot Operating System
 
 **Namen:** Fabian Georgi (s0563263) <br>
-Matthias Titze (s0563263)
-**Matrikelnummer:** s0563263 <br>
+Matthias Titze (s0563413)
 **Dozent:** Patrick Baumann <br>
 **Kurs:** KI in der Robotik <br>
 
