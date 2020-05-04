@@ -13,19 +13,11 @@
 - [2. Objective I - Erstellung eines Publishers & Subscribers](#2-objective-i)
 
 
-# 1. Theorie <a name="1-theorie"/>
+# 1. Theorie
 Bevor die Implementierung beginnt, sollten zunächst einige Grundlagen geklärt werden.
 
 ### 1.1 Nodes <a name="#11-nodes"/>
-Eine Node ist in ROS ein gekapselter Prozess der Berechnungen ausführt. Sie kann durch eine ausführbare Datei innerhalb eines Paketes erzeugt werden. Nodes werden zu einem Graphen verknüpft und kommunizieren miteinander über ***Topics*** (Streams), ***RPC Dienste*** und den ***Parameter Server***. Jeder dieser Knoten stellt im Grunde eine Form von Microservice dar, der eine sehr eng umfasste Aufgabe erfüllt. Somit benötigt eine Robotersteuerung in der Regel viele Nodes.<br><br>
-***Beispiel:*** In unserem Fall stellt eine Node die Sensoreingabe dar, eine weitere die Verarbeitung der Eingabe. Dazu gibt es die Kernsteuerung, welche wiederum eine AI-Komponente für die Auswertung und Analyse der Sensordaten nutzt. Es fällt leicht, sich weitere Komponenten, wie Bewegungssteuerung, Monitorausgabe etc. vorzustellen. Zusammenfassen eine Liste, der in diesem Projekt genutzten Nodes:
-
- - Camera
- - Processor
- - Controller
- - Predictor
-
-Die Verwendung von Nodes hat einige Vorteile: Das System ist modular und kann im Verglich zu monolitischen Architekturen leicht erweitert werden. Auch erreichen wir eine gesteigerte Fehlertoleranz, da sich Abstürze auf einzelne Komponenten beschränken. Die Wiederverwendung und Nutzung von existierenden Bausteinen wird begünstigt, da klare Schnittstellen entstehen. Implementierungsdetails sind hingegen oft verborgen.
+Eine Node ist in ROS ein gekapselter Prozess der Berechnungen ausführt. Sie kann durch eine ausführbare Datei innerhalb eines Paketes erzeugt werden. Nodes werden zu einem Graphen verknüpft und kommunizieren miteinander über ***Topics*** (Streams), ***RPC Dienste*** und den ***Parameter Server***. Jeder dieser Knoten stellt im Grunde eine Form von Microservice dar, der eine sehr eng umfasste Aufgabe erfüllt. Somit benötigt eine Robotersteuerung in der Regel viele Nodes.<br>Die Verwendung von Nodes hat einige Vorteile: Das System ist modular und kann im Verglich zu monolitischen Architekturen leicht erweitert werden. Auch erreichen wir eine gesteigerte Fehlertoleranz, da sich Abstürze auf einzelne Komponenten beschränken. Die Wiederverwendung und Nutzung von existierenden Bausteinen wird begünstigt, da klare Schnittstellen entstehen. Implementierungsdetails sind hingegen oft verborgen.
 
 ### 1.2 Messages <a name="#12-messages"/>
 Eine Message ist ein Datentyp mit denen Knoten untereinander Informationen austauschen können. Sie stellen eine Art Standard zur Kommunikation dar, sodass Sender und Empfänger über des selbe Dateiformat sprechen.
@@ -37,15 +29,49 @@ Der Master-Node stellt den obersten Knoten dar. Er ist der oberste Knoten im Gra
 Der Service stellt eine Art speziellen Node dar. Es stellt auch einen Prozess dar, jedoch erweitert er jenen dahingegend, dass ein Service immer eine Antwort zurückliefert.
 
 
-# 2. Objective I - Erstellung eines Publishers & Subscribers <a name="2-objective-i"/>
-Ziel dieser Aufgabe ist es zwei Nodes bereitzustellen. Der erste Node (Talker/Cam) verschickt ein Bild und eine Zahl. Der zweite Node empfängt das Bild und bearbeitet es (z.B. schneidet das Bild zurecht). Dieses bearbeitete Bild sendet er wieder weiter.
 
-Mittels rqt-graph lässt sich folgender Plot erstellen: <br>
+
+# 2. Architektur - Number Sensor
+**Nodes:** In unserem Fall stellt eine Node die Sensoreingabe dar, eine weitere die Verarbeitung der Eingabe. Dazu gibt es die Kernsteuerung, welche wiederum eine AI-Komponente für die Auswertung und Analyse der Sensordaten nutzt. Es fällt leicht, sich weitere Komponenten, wie Bewegungssteuerung, Monitorausgabe etc. vorzustellen. Zusammenfassend seien hier die in diesem Projekt genutzten Nodes aufgelistet:
+
+ - Camera
+ - Processor
+ - Controller
+ - Predictor
+
+**Graph:** Die erste Node `/camera` verschickt ein Bild, das einem Videoinput simuliert. Der zweite Knoten `/processor` empfängt dieses Bild und bearbeitet es (Reduktion auf Graustufen). Das bearbeitete Bild sendet er wieder weiter an den Steuerungsknoten `/controller`. Die Kamara verschickt des weiteren eine Nummer, die die auf dem Bild dargestellte Zahl identifiziert. Der Controller empfängt diese Nummer und speichert sie zusammen mit dem vorverarbeiteten Bild ab. Nun wird das Bild an die AI-Komponente `/predictor` verschickt. Dieser analysiert es mit einem trainierten Neuronalen Netz und macht eine Voraussage über die abgebildete Nummer. Diese Voraussage returniert er. Der Controller kann nun beide Ergebnisse abgleichen.
+
+![rqt_graph](./Docs/Graph_Task_2_1.png)<br>
+
+**Kommunikation Kamera - Pre-Prozessor:** Die Kommunikation erfolgt über den Topic-Stream `/raw_images`. Das Kamaramodul ist Publisher der Nachricht und die Prozessor-Node der Subscriber. Das Nachritenformat ist die ROS Standard Sensor-Image-Message. 
 ![rqt_graph](./Docs/Graph_Task_1_3.png)<br>
-*"Kommunikation zwischen Publisher und Subscriber"*<br>
-Der `cam` Node verschickt einmal ein Integer an das `number_topic` und ein Bild an das `image_topic`. Der `processor` holt sich das Bild dort ab, bearbeitet und sendet es weiter an das `processed_image_topic`. Dort ist jedoch noch kein Subscriber, sodass es erstmal im Leeren landet.
 
-# 3. Objective II - Conrtoller und AI-Service
-Das prozessierte Bild und die von der `camera` losgeschickte Nummer soll nun im Controller wieder zusammenfinden. Dort werden sie zwischengespeichert. Des Weiteren wird ein AI-Service implementiert. Dieser soll das Bild als Input nehmen, analysieren und daraus ausgehend eine Vorhersage erstellen wird. Dieser Service sendet dann die vorhergesagte Zahl zurück, sodass der Controller die reale und predictete Zahl vergleichen kann.
-Die Architektur sieht dann wie folgt aus:
-![rqt_graph](./Docs/Graph_Task_2_1.png)
+**Kommunikation Pre-Prozessor - Controller:**  Diese Kommunikation erfolgt ebenfalls über eine Topic: `/processed_images`. Der Controller ist außerdem Abonnent des Topics `/image_numbers`.
+
+**Kommunikation Controller - Predictor:**  Dkjkjkjk
+
+
+
+# 3. AI-Modell - Neural Network
+### 3.1 Architektur - Dense Layer Neural Network
+
+klklk
+
+### 3.2 Kostenfunktion
+
+### 3.3 Optimizer
+
+### 3.4 Auswertung Training
+
+
+
+
+
+# 4. Deployment 
+
+
+
+
+
+
+
