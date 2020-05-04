@@ -23,7 +23,7 @@ def predict_number(req):
     # Extract the input image form the request.
     input_image = bridge.imgmsg_to_cv2(req.image)
     # Log the information for debug purposes.
-    rospy.loginfo('AI-In: {0}'.format(np.shape(input_image)))
+    # rospy.loginfo('AI-In: {0}'.format(np.shape(input_image)))
     
     # Transform the image to normaliyed tensor.
     transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5,), (0.5,)),])
@@ -32,12 +32,15 @@ def predict_number(req):
     # Make a prediction and return.
     with torch.no_grad():
         logps = model(image_tensor)
-    
+
+    # Exponentiate prediction
     ps = torch.exp(logps)
+    # Get the probabilities of all classes
     probab = list(ps.numpy()[0])
+    # Max probability is predicted class
     prediction = probab.index(max(probab))
     
-    rospy.loginfo('AI-Out: {0}'.format(prediction))
+    # rospy.loginfo('AI-Out: {0}'.format(prediction))
     return NumberPredictorResponse(prediction)
 
 def predictor_server():
