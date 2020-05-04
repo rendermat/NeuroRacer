@@ -1,9 +1,6 @@
-[rqt_graph]: https://github.com/rendermat/NeuroRacer/blob/master/Docs/Graph_Task_1_3.png "Kommunikation zwischen Publisher und Subscriber"
-
-
 # Robot Operating System
 
-**Namen:** Fabian Georgi (s0563263), Matthias Titze (s0563413)
+**Namen:** Fabian Georgi (s0563263), <br> Matthias Titze (s0563413) <br>
 **Dozent:** Patrick Baumann <br>
 **Kurs:** KI in der Robotik <br>
 
@@ -23,10 +20,10 @@ Bevor die Implementierung beginnt, sollten zunächst einige Grundlagen geklärt 
 Eine Node ist in ROS ein gekapselter Prozess der Berechnungen ausführt. Sie kann durch eine ausführbare Datei innerhalb eines Paketes erzeugt werden. Nodes werden zu einem Graphen verknüpft und kommunizieren miteinander über ***Topics*** (Streams), ***RPC Dienste*** und den ***Parameter Server***. Jeder dieser Knoten stellt im Grunde eine Form von Microservice dar, der eine sehr eng umfasste Aufgabe erfüllt. Somit benötigt eine Robotersteuerung in der Regel viele Nodes.<br><br>
 ***Beispiel:*** In unserem Fall stellt eine Node die Sensoreingabe dar, eine weitere die Verarbeitung der Eingabe. Dazu gibt es die Kernsteuerung, welche wiederum eine AI-Komponente für die Auswertung und Analyse der Sensordaten nutzt. Es fällt leicht, sich weitere Komponenten, wie Bewegungssteuerung, Monitorausgabe etc. vorzustellen. Zusammenfassen eine Liste, der in diesem Projekt genutzten Nodes:
 
-> - Camera
-> - Processor
-> - Controller
-> - Predictor
+ - Camera
+ - Processor
+ - Controller
+ - Predictor
 
 Die Verwendung von Nodes hat einige Vorteile: Das System ist modular und kann im Verglich zu monolitischen Architekturen leicht erweitert werden. Auch erreichen wir eine gesteigerte Fehlertoleranz, da sich Abstürze auf einzelne Komponenten beschränken. Die Wiederverwendung und Nutzung von existierenden Bausteinen wird begünstigt, da klare Schnittstellen entstehen. Implementierungsdetails sind hingegen oft verborgen.
 
@@ -35,7 +32,9 @@ Eine Message ist ein Datentyp mit denen Knoten untereinander Informationen austa
 ### 1.3 Topics <a name="#13-topics"/>
 Ein Topic stellt in etwa den Mittelsmann beim Informationsaustausch ist. Der Sender kann diese Nachrichten dort auf dem Topic "ablegen". Der Empfänger hat nun die Möglichkeit sich, wenn er das Topic abonniert hat, die Nachricht abzuholen. So findet die Kommunikation zwischen den zwei Nodes über ein Topic statt.
 ### 1.4 Master <a name="#14-master"/>
-Der Master-Node stellt den obersten Knoten dar. Er ist der oberste Knoten im Graphen und verwaltet die anderen. Er überwacht die anderen Nodes und Ihre dazugehörigen Topics. Er sorgt dafür, dass sich die Nodes untereinander finden können, damit diese Informationen austauschen können. Des Weiteren stellt er den Parameterserver zur Verfügung, sodass dort Daten - ähnlich wie Environment-Variablen - verwaltet werden können. 
+Der Master-Node stellt den obersten Knoten dar. Er ist der oberste Knoten im Graphen und verwaltet die anderen. Er überwacht die anderen Nodes und Ihre dazugehörigen Topics. Er sorgt dafür, dass sich die Nodes untereinander finden können, damit diese Informationen austauschen können. Des Weiteren stellt er den Parameterserver zur Verfügung, sodass dort Daten - ähnlich wie Environment-Variablen - verwaltet werden können.
+### 1.5 Service <a name="15-service"/>
+Der Service stellt eine Art speziellen Node dar. Es stellt auch einen Prozess dar, jedoch erweitert er jenen dahingegend, dass ein Service immer eine Antwort zurückliefert.
 
 
 # 2. Objective I - Erstellung eines Publishers & Subscribers <a name="2-objective-i"/>
@@ -46,3 +45,7 @@ Mittels rqt-graph lässt sich folgender Plot erstellen: <br>
 *"Kommunikation zwischen Publisher und Subscriber"*<br>
 Der `cam` Node verschickt einmal ein Integer an das `number_topic` und ein Bild an das `image_topic`. Der `processor` holt sich das Bild dort ab, bearbeitet und sendet es weiter an das `processed_image_topic`. Dort ist jedoch noch kein Subscriber, sodass es erstmal im Leeren landet.
 
+# 3. Objective II - Conrtoller und AI-Service
+Das prozessierte Bild und die von der `camera` losgeschickte Nummer soll nun im Controller wieder zusammenfinden. Dort werden sie zwischengespeichert. Des Weiteren wird ein AI-Service implementiert. Dieser soll das Bild als Input nehmen, analysieren und daraus ausgehend eine Vorhersage erstellen wird. Dieser Service sendet dann die vorhergesagte Zahl zurück, sodass der Controller die reale und predictete Zahl vergleichen kann.
+Die Architektur sieht dann wie folgt aus:
+![rqt_graph](./Docs/Graph_Task_2_1.png)
