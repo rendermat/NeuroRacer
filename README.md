@@ -158,7 +158,7 @@ Nun können wir das Projekt mit `roslaunch` ausführen.
 
 ```bash
 # Start the core service.
-# This is not required if you start with roslaunch. Roslauch starts rocore automatically.
+# This is not required if you start with roslaunch. Roslauch starts roscore automatically.
 $ roscore
 ```
 
